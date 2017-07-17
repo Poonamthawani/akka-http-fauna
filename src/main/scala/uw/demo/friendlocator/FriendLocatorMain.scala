@@ -1,9 +1,11 @@
 package uw.demo.friendlocator
 
+import com.typesafe.config.Config
+
 /**
   * Created by pthawani on 7/16/17.
   */
-class FriendLocatorMain {
+class FriendLocatorMain(config: Config) {
 
 }
 
