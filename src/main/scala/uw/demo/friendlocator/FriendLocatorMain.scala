@@ -9,12 +9,14 @@ import com.typesafe.config.Config
 import nl.grons.metrics.scala.DefaultInstrumented
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import uw.demo.friendlocator.service.{FriendLocatorService, FriendLocatorServiceImpl}
+import uw.demo.friendlocator.repository.FriendLocatorDatabase
 import akka.http.scaladsl.Http
+import faunadb.FaunaClient
 import net.ceedubs.ficus.Ficus._
 import nl.grons.metrics.scala.{DefaultInstrumented, MetricName}
+import scala.concurrent.duration._
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Left, Right, Success}
 
 /**
@@ -43,6 +45,10 @@ object FriendLocatorMain extends DefaultInstrumented {
     val config = system.settings.config.as[Config]("uw.demo.friendlocatorservice")
     val host   = config.as[String]("host")
     val port   = config.as[Int]("port").toInt
+    val serverKey      = config.as[String]("DBServerKey.serverKey")
+
+    val client = FaunaClient(secret = serverKey)
+    Await.result(FriendLocatorDatabase(client).init, 10.seconds)
 
     val service       = new FriendLocatorMain(config)
     val bindingFuture = Http().bindAndHandle(service.route, host, port)
@@ -51,7 +57,7 @@ object FriendLocatorMain extends DefaultInstrumented {
       case Success(binding) =>
         val la = binding.localAddress
         system.log.info(
-          s"Service 'transaction-history-service' started - Listening for HTTP on /${la.getHostName}:${la.getPort}"
+          s"Service 'Friend Locator Service' started - Listening for HTTP on /${la.getHostName}:${la.getPort}"
         )
       case Failure(ex) =>
         system.log.error(s"Can't bind to $host:$port", ex)
