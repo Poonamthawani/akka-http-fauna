@@ -8,43 +8,45 @@ import faunadb.values._
 
 import scala.concurrent.{ExecutionContext, Future}
 import faunadb.values.{Field, Value}
+import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
+
 
 /**
   * Created by pthawani on 7/16/17.
   */
 trait FriendLocatorRepository {
 
-  def storeFriend : Future[Value]
-  def readFriendByName : Future[Value]
-  def readFriendByLocation : Future[Value]
-  def updateFriendLocation : Future[Value]
+  def storeFriend(friend : Friend) : Future[Value]
+  def readFriendByName(name : String) : Future[Value]
+  def readFriendByLocation(location : String) : Future[Value]
+  def updateFriendLocation(friend : Friend) : Future[Value]
 
 }
 
 class FaunaFriendLocatorRepository(client : FaunaClient) extends FriendLocatorRepository{
   import ExecutionContext.Implicits._
-  override def storeFriend: Future[Value] = {
+  override def storeFriend(friend: Friend): Future[Value] = {
     client.query(
       Create(
         Class("friends11"),
         Obj(
-          "data" -> Obj("name" -> "Hrehaan", "city" -> "Issaquah" ,"State" -> "WA" , "location" -> "Disney")
+          "data" -> Obj("name" -> friend.name, "city" -> friend.city ,"State" -> friend.State , "location" -> friend.location)
         )))
   }
 
-  override def readFriendByLocation: Future[Value] = {
+  override def readFriendByLocation(location : String): Future[Value] = {
     client.query(
       Paginate(
-        Match(Index("friends11_by_location_with_name"), "Disney")))
+        Match(Index("friends11_by_location_with_name"), location)))
   }
 
-  override def readFriendByName : Future[Value] = {
+  override def readFriendByName(name : String) : Future[Value] = {
    client.query(
      Get(
-      Match(Index("friends11_by_name"), "Hrehaan")))
+      Match(Index("friends11_by_name"), name)))
   }
 
-  override def updateFriendLocation: Future[Value] = {
+  override def updateFriendLocation(friend : Friend): Future[Value] = {
     client.query(
       Update(
         Select(
@@ -52,8 +54,8 @@ class FaunaFriendLocatorRepository(client : FaunaClient) extends FriendLocatorRe
           Get(
             Match(
               Index("friends11_by_name"),
-              "Ariana"))),
-        Obj("data" -> Obj("location" -> "Disney"))))
+              friend.name))),
+        Obj("data" -> Obj("location" -> friend.location))))
   }
 
 }
