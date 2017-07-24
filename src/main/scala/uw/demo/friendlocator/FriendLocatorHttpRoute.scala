@@ -28,6 +28,36 @@ trait FriendLocatorHttpRoute extends Directives{
       get {
         complete("New World")
       }
-    }
+    }~
+      path("myfriends") {
+        get {
+          // will marshal Item to JSON
+          complete(friendLocatorService.retreiveFriends.map(res => res.toString))
+        }
+      }~
+      path("findfriendbyname") {
+        get {
+          // will marshal Item to JSON
+          complete(friendLocatorService.retriveFriendsByName.map(res => res.toString))
+        }
+      }~
+      path("findfriendbylocation") {
+        get {
+          // will marshal Item to JSON
+          complete(friendLocatorService.retreiveFriendsByLocation.map(res => res.toString))
+        }
+      }~
+    path("addFriend") {
+      post {
+        // will marshal Item to JSON
+        complete(friendLocatorService.addFriend.toString)
+      }
+    }~
+      path("checkinlocation") {
+        post {
+          // will marshal Item to JSON
+          complete(friendLocatorService.updateLocation.toString)
+        }
+      }
 
 }

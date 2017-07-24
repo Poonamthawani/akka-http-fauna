@@ -65,7 +65,7 @@ class FriendLocatorDatabase(client: FaunaClient) (implicit ec:ExecutionContext){
   val createFolllowerIdIdx =
     q.CreateIndex(
       q.Obj(
-        "name" -> "followers_by_friend",
+        "name" -> "followers11_by_friend",
         "source" -> q.Class("Friends11Followers"),
         "terms" -> q.Arr(
           q.Obj("field" -> q.Arr("data", "friend"))
@@ -97,7 +97,7 @@ class FriendLocatorDatabase(client: FaunaClient) (implicit ec:ExecutionContext){
         case _ => client.query(q.Get(q.Class("Friends11Followers")))
       }
       _ <- client.query(createFolllowerIdIdx).recoverWith {
-        case _ => client.query(q.Get(q.Index("followers_by_friend")))
+        case _ => client.query(q.Get(q.Index("followers11_by_friend")))
       }
     } yield ()
   }
@@ -107,5 +107,5 @@ class FriendLocatorDatabase(client: FaunaClient) (implicit ec:ExecutionContext){
 }
 
 object FriendLocatorDatabase{
-  def apply(client: FaunaClient)(implicit ec: ExecutionContext) : FriendLocatorDatabase = new FriendLocatorDatabase()
+  def apply(client: FaunaClient)(implicit ec: ExecutionContext) : FriendLocatorDatabase = new FriendLocatorDatabase(client)
 }

@@ -9,13 +9,13 @@ import com.typesafe.config.Config
 import nl.grons.metrics.scala.DefaultInstrumented
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import uw.demo.friendlocator.service.{FriendLocatorService, FriendLocatorServiceImpl}
-import uw.demo.friendlocator.repository.FriendLocatorDatabase
+import uw.demo.friendlocator.repository.{FaunaFriendLocatorRepository, FriendLocatorDatabase}
 import akka.http.scaladsl.Http
 import faunadb.FaunaClient
 import net.ceedubs.ficus.Ficus._
 import nl.grons.metrics.scala.{DefaultInstrumented, MetricName}
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Left, Right, Success}
 
@@ -39,7 +39,7 @@ object FriendLocatorMain extends DefaultInstrumented {
 
     implicit val system = ActorSystem()
     implicit val materializer = ActorMaterializer()
-    implicit val friendLocatorService = new FriendLocatorServiceImpl()
+
     implicit val ec = system.dispatcher
 
     val config = system.settings.config.as[Config]("uw.demo.friendlocatorservice")
@@ -47,8 +47,12 @@ object FriendLocatorMain extends DefaultInstrumented {
     val port   = config.as[Int]("port").toInt
     val serverKey      = config.as[String]("DBServerKey.serverKey")
 
-    val client = FaunaClient(secret = serverKey)
+    val client: FaunaClient = FaunaClient(secret = serverKey)
     Await.result(FriendLocatorDatabase(client).init, 10.seconds)
+
+    val repo = new FaunaFriendLocatorRepository(client)
+
+    implicit val friendLocatorService = new FriendLocatorServiceImpl(repo)
 
     val service       = new FriendLocatorMain(config)
     val bindingFuture = Http().bindAndHandle(service.route, host, port)
