@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
   "com.whisk"                  %% "docker-testkit-impl-docker-java" % "0.9.1" % "test",
   "org.scalacheck"             %% "scalacheck"                      % "1.13.5" % "test",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.3",
-  "com.faunadb" %% "faunadb-scala" % "1.0.0",
+  "com.faunadb" %% "faunadb-scala" % "1.2.0",
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
   "joda-time" % "joda-time" % jodaTimeVersion,

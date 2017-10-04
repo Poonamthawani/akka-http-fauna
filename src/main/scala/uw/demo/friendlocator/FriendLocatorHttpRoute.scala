@@ -3,6 +3,7 @@ package uw.demo.friendlocator
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
+import uw.demo.friendlocator.friendlocator.Friend1
 import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
 import uw.demo.friendlocator.service.FriendLocatorService
 
@@ -43,7 +44,7 @@ trait FriendLocatorHttpRoute extends Directives{
         get {
           // will marshal Item to JSON
           parameters('name.as[String]) { frndName =>
-            complete(friendLocatorService.retriveFriendsByName(frndName).map(res => res.toString))
+            complete(friendLocatorService.retriveFriendsByName(frndName).map(res => res("data").to[Friend1].toString))
           }
         }
       } ~

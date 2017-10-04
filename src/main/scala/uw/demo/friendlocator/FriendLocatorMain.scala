@@ -12,12 +12,17 @@ import uw.demo.friendlocator.service.{FriendLocatorService, FriendLocatorService
 import uw.demo.friendlocator.repository.{FaunaFriendLocatorRepository, FriendLocatorDatabase}
 import akka.http.scaladsl.Http
 import faunadb.FaunaClient
+import faunadb.query.{Get, Index, Match}
+import faunadb.values.{Codec, FieldPath, Result, Value}
+import io.circe.Decoder
 import net.ceedubs.ficus.Ficus._
 import nl.grons.metrics.scala.{DefaultInstrumented, MetricName}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Left, Right, Success}
+import uw.demo.friendlocator.friendlocator
+import uw.demo.friendlocator.friendlocator.Friend1
 
 /**
   * Created by pthawani on 7/16/17.
@@ -31,6 +36,10 @@ class FriendLocatorMain(config: Config)(
 ) extends FriendLocatorHttpRoute with DefaultInstrumented {
 
 }
+
+
+
+
 
 object FriendLocatorMain extends DefaultInstrumented {
 
@@ -51,6 +60,21 @@ object FriendLocatorMain extends DefaultInstrumented {
     Await.result(FriendLocatorDatabase(client).init, 10.seconds)
 
     val repo = new FaunaFriendLocatorRepository(client)
+
+
+
+
+    val friend1 = client.query(
+      Get(
+        Match(Index("friends11_by_name"), "Hrehaan")))
+      .map(value => value("data").to[Friend1])
+
+
+
+    println(
+      Await.result(friend1, Duration.Inf)
+    )
+
 
     implicit val friendLocatorService = new FriendLocatorServiceImpl(repo)
 
