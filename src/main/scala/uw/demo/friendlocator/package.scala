@@ -43,6 +43,21 @@ package object friendlocator {
     }
   }
 
+  case class FriendLocation(name: String, location: String)
+
+
+  object FriendLocation {
+    implicit object decoder extends Decoder[FriendLocation] {
+      def decode(value: Value, path: FieldPath): Result[FriendLocation] = {
+        for {
+
+          name <- value("name").to[String]
+          location <- value("location").to[String]
+        } yield FriendLocation(name,location)
+      }
+    }
+  }
+
 
 
 }
