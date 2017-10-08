@@ -3,6 +3,9 @@ package uw.demo.friendlocator
 
 import faunadb.values._
 import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
+import faunadb.{query => q}
+
+import scala.util.Try
 
 /**
   * Created by pthawani on 7/24/17.
@@ -57,6 +60,7 @@ package object friendlocator {
       }
     }
   }
+
 
 
 

@@ -1,7 +1,8 @@
 package uw.demo.friendlocator.service
 
 import scala.concurrent.{ExecutionContext, Future}
-import faunadb.values.{Field, Value}
+import faunadb.values.{Field, Result, Value}
+import uw.demo.friendlocator.friendlocator.Friend1
 import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
 import uw.demo.friendlocator.repository.FriendLocatorRepository
 
@@ -25,7 +26,7 @@ class FriendLocatorServiceImpl(repo : FriendLocatorRepository) (implicit executi
     repo.storeFriend(friend)
   }
 
-  override def retreiveFriends(name : String) : Future[Value]  = {
+  override def retreiveFriends(name : String) : Future[Value] = {
     repo.readFriendByName(name)
   }
 

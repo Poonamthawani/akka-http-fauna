@@ -3,11 +3,12 @@ package uw.demo.friendlocator
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives
 import akka.stream.Materializer
+import faunadb.values.Field
 import uw.demo.friendlocator.friendlocator.{Friend1, FriendLocation}
 import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
 import uw.demo.friendlocator.service.FriendLocatorService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -29,7 +30,7 @@ trait FriendLocatorHttpRoute extends Directives{
 
     path("hello") {
       get {
-        complete("New World")
+        complete(Future(List("New World","Poonam")))
       }
     } ~
       path("myfriends") {
@@ -44,14 +45,20 @@ trait FriendLocatorHttpRoute extends Directives{
         get {
           // will marshal Item to JSON
           parameters('name.as[String]) { frndName =>
-            complete(friendLocatorService.retriveFriendsByName(frndName).map(res => res("data").to[Friend1].toString))
+            complete(friendLocatorService.retriveFriendsByName(frndName).map(value => value("data").collect(Field("data").to[Friend1]).toString))
+           //complete(friendLocatorService.retriveFriendsByName(frndName).map(value => value("data").collect(Field("data").to[Friend1])).toString)
+           // complete(friendLocatorService.retriveFriendsByName(frndName).map(res => res("data").to[Seq[Friend1]].map(x =>x).toString))
           }
         }
       } ~
       path("findfriendbylocation" / Segment) { location =>
         get {
           // will marshal Item to JSON
-          complete(friendLocatorService.retreiveFriendsByLocation(location).map(res => res("data").toString))
+          //complete(friendLocatorService.retreiveFriendsByLocation(location).map(res => res("data").toString))
+          complete(friendLocatorService.retreiveFriendsByLocation(location).map(value => value("data").collect(Field("data").to[Friend1]).toString))
+
+          //complete(friendLocatorService.retreiveFriendsByLocation(location).map(res => res("data").to[Seq[FriendLocation]].map(x => x).toString))
+          //complete(friendLocatorService.retreiveFriendsByLocation(location).map(res => res("data").collect(Field("data").to[FriendLocation].toString)))
         }
       } ~
       path("addfriend") {
@@ -73,3 +80,5 @@ trait FriendLocatorHttpRoute extends Directives{
       }
   }
 }
+
+

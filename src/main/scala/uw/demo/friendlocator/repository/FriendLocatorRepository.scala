@@ -8,8 +8,9 @@ import faunadb.values._
 
 import scala.concurrent.{ExecutionContext, Future}
 import faunadb.values.{Field, Value}
+import uw.demo.friendlocator.friendlocator.Friend1
 import uw.demo.friendlocator.friendlocator.FriendLocatorRestModels.Friend
-
+import faunadb.{query => q}
 
 /**
   * Created by pthawani on 7/16/17.
@@ -35,15 +36,31 @@ class FaunaFriendLocatorRepository(client : FaunaClient) extends FriendLocatorRe
   }
 
   override def readFriendByLocation(location : String): Future[Value] = {
-    client.query(
-      Paginate(
+  /* client.query(
+      Get(
         Match(Index("friends11_by_location_with_name"), location)))
+*/
+  val pages = q.Paginate(q.Match(q.Index("friends11_by_location_with_name"), "UK"))
+    val expr = q.Map(pages, q.Lambda { (_, _, ref) => q.Get(ref) })
+    client.query(expr)
+
   }
 
   override def readFriendByName(name : String) : Future[Value] = {
-   client.query(
-     Get(
+    /*client.query(
+     Paginate(
       Match(Index("friends11_by_name"), name)))
+*/
+
+
+    val pages = q.Paginate(q.Match(q.Index("friends11_by_name"), "Karishma"))
+    val expr = q.Map(pages, q.Lambda { (_, _, ref) => q.Get(ref) })
+    client.query(expr)
+    //  .map { value => value("data").collect(Field("data").to[Friend1]) }
+
+
+
+
   }
 
   override def updateFriendLocation(friend : Friend): Future[Value] = {
