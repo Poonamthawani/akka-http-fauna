@@ -40,7 +40,7 @@ class FaunaFriendLocatorRepository(client : FaunaClient) extends FriendLocatorRe
       Get(
         Match(Index("friends11_by_location_with_name"), location)))
 */
-  val pages = q.Paginate(q.Match(q.Index("friends11_by_location_with_name"), "UK"))
+  val pages = q.Paginate(q.Match(q.Index("friends11_by_location_with_name"), location))
     val expr = q.Map(pages, q.Lambda { (_, _, ref) => q.Get(ref) })
     client.query(expr)
 
@@ -51,16 +51,10 @@ class FaunaFriendLocatorRepository(client : FaunaClient) extends FriendLocatorRe
      Paginate(
       Match(Index("friends11_by_name"), name)))
 */
-
-
-    val pages = q.Paginate(q.Match(q.Index("friends11_by_name"), "Karishma"))
+    val pages = q.Paginate(q.Match(q.Index("friends11_by_name"), name))
     val expr = q.Map(pages, q.Lambda { (_, _, ref) => q.Get(ref) })
     client.query(expr)
     //  .map { value => value("data").collect(Field("data").to[Friend1]) }
-
-
-
-
   }
 
   override def updateFriendLocation(friend : Friend): Future[Value] = {

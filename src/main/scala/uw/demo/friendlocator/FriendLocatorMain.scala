@@ -12,7 +12,7 @@ import uw.demo.friendlocator.service.{FriendLocatorService, FriendLocatorService
 import uw.demo.friendlocator.repository.{FaunaFriendLocatorRepository, FriendLocatorDatabase}
 import akka.http.scaladsl.Http
 import faunadb.FaunaClient
-import faunadb.query.{Get, Index, Match}
+import faunadb.query.{Get, Index, Match, Paginate}
 import faunadb.values._
 import io.circe.Decoder
 import net.ceedubs.ficus.Ficus._
@@ -24,6 +24,7 @@ import scala.util.{Failure, Left, Right, Success}
 import uw.demo.friendlocator.friendlocator
 import uw.demo.friendlocator.friendlocator.Friend1
 import faunadb.{query => q}
+import uw.demo.friendlocator.FaunaTests.client
 
 /**
   * Created by pthawani on 7/16/17.
@@ -90,6 +91,17 @@ object FriendLocatorMain extends DefaultInstrumented {
     println(
       Await.result(friend3, Duration.Inf)
     )
+
+    val temporalEvents=client.query(
+      Paginate(
+        Match(Index("friends11_by_name"), "BenEdwards"),
+
+        events = true))
+
+    println(
+      Await.result(temporalEvents, Duration.Inf)
+    )
+
 
     implicit val friendLocatorService = new FriendLocatorServiceImpl(repo)
 
